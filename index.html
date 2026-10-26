@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="Spor"><meta name="theme-color" content="#eef0f3">
+<title>Spor</title>
+<style>
+:root{--bg:#eef0f3;--c:#fff;--t:#14181f;--m:#6b7280;--l:#e5e7eb;--b:#2347f5;--o:#d9622b}
+*{box-sizing:border-box}html,body{margin:0}
+body{font:16px/1.4 -apple-system,system-ui,sans-serif;background:var(--bg);color:var(--t);padding:env(safe-area-inset-top) 0 0}
+main{padding:14px 14px 90px;max-width:560px;margin:auto}
+.card{background:var(--c);border-radius:20px;padding:6px 18px 10px;margin-bottom:14px}
+.card.today{border-left:6px solid var(--o)}
+.h{display:flex;justify-content:space-between;align-items:baseline;padding:14px 0 10px;border-bottom:1px solid var(--l)}
+.h b{font-size:20px}.h span,.s{color:var(--m);font-size:14px}
+.r{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--l)}
+.r:last-child{border:0}.r b{white-space:nowrap}
+.r.done .n{text-decoration:line-through;color:var(--m)}
+.n{flex:1}.n div:first-child{font-size:17px}
+h2{margin:6px 4px 12px;font-size:22px}
+input,select,button{font:inherit;padding:11px 12px;border-radius:12px;border:1px solid var(--l);background:#fff;width:100%}
+button{background:var(--b);color:#fff;border:0;font-weight:600}
+button.g{background:#eef1ff;color:var(--b);width:auto;padding:8px 12px}
+button.x{background:none;color:var(--m);width:auto;padding:4px 8px}
+.f{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 0}
+.f label{font-size:13px;color:var(--m)}.f .w{grid-column:1/-1}
+.bar{height:10px;background:var(--l);border-radius:9px;overflow:hidden;margin:6px 0 4px}
+.bar i{display:block;height:100%;background:var(--b)}
+.big{font-size:30px;font-weight:700}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:#fff;border-top:1px solid var(--l);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;color:var(--m);border-radius:0;padding:16px 0 14px;border-top:3px solid transparent;font-size:15px}
+nav button.on{color:var(--b);border-top-color:var(--b)}
+details{padding:10px 0;border-bottom:1px solid var(--l)}summary{cursor:pointer;font-weight:600;list-style:none}
+details p{margin:8px 0 10px;color:var(--m);font-size:14px}
+</style></head><body><main id="v"></main><nav id="nav"></nav>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const L={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const GUN=["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"],SIRA=[1,2,3,4,5,6,0];
+const P={
+1:["Üst Vücut A",[["Dambıl Bench Press","Göğüs","4x8-12"],["Bar Bent-over Row","Sırt","4x8-10"],["Dambıl Omuz Press","Omuz","3x8-12"],["Pullover (dambıl)","Sırt / göğüs","3x10-12"],["Lateral Raise","Yan omuz","3x12-15"],["Skull Crusher (bar)","Triceps","3x10-12"],["Bar Curl","Biceps","3x10-12"]]],
+2:["Alt Vücut A",[["Bulgarian Split Squat","Ön bacak","4x8-10 (her bacak)"],["Bar RDL","Arka bacak","4x8-10"],["Goblet Squat (3 sn iniş)","Bacak","3x15"],["Bar Hip Thrust (bench)","Kalça","4x10-12"],["Tek Ayak Baldır","Baldır","4x15-20"],["Plank","Karın","3x45sn"]]],
+4:["Üst Vücut B",[["Eğimli Dambıl Press","Üst göğüs","4x8-12"],["Tek Kol Dambıl Kürek","Sırt","4x10-12"],["Chest-supported Row","Orta sırt","3x10-12"],["Reverse Fly","Arka omuz","3x15"],["Dambıl Fly","Göğüs","3x12-15"],["Hammer Curl","Biceps","3x10-12"],["Overhead Triceps Ext.","Triceps","3x10-12"]]],
+5:["Alt Vücut B",[["Reverse Lunge","Bacak","3x10 (her bacak)"],["Bar Sumo Deadlift","Bacak / kalça","3x8-10"],["Tek Bacak Hip Thrust","Kalça","3x10-12"],["Havlu ile Leg Curl","Arka bacak","3x8-12"],["Tek Ayak Baldır","Baldır","4x15-20"],["Crunch","Karın","3x15"]]]};
+const T=[
+["Muzlu yulaflı smoothie",740,30,"80 g yulaf, 1 muz, 300 ml süt, 2 yk fıstık ezmesi","Hepsini blenderdan geçir."],
+["Menemen + ekmek",520,25,"3 yumurta, domates, biber, 1 yk yağ, 2 dilim ekmek","Sebzeleri yağda pişir, yumurtaları kır, karıştır."],
+["Tavuklu pilav",700,53,"150 g pişmiş tavuk, 100 g pirinç (çiğ), 1 yk yağ","Pilavı pişir, tavuğu üstüne ekle."],
+["Ton balıklı makarna",580,40,"100 g makarna (çiğ), 1 kutu ton, 1 yk zeytinyağı","Makarnayı haşla, ton ve yağla karıştır."],
+["Fırın köfte + patates",610,33,"150 g kıyma, 250 g patates, 1 yk yağ","Köfteleri ve patatesi 200°C'de 30 dk pişir."],
+["Kuru fasulye + pilav",500,20,"1 porsiyon kuru fasulye, 150 g pilav","Yanında yoğurt ekle."],
+["Yoğurtlu yulaf kasesi",540,19,"250 g yoğurt, 50 g yulaf, 1 yk bal, 20 g ceviz","Hepsini kaseye koy, karıştır."],
+["Omlet sandviç",535,32,"3 yumurta, 30 g peynir, 2 dilim ekmek","Omleti pişir, peynirle ekmeğe koy."],
+["Fıstık ezmeli ekmek + süt",555,25,"3 dilim ekmek, 2 yk fıstık ezmesi, 250 ml süt","Ekmeklere ezmeyi sür, sütle ye."],
+["Tavuk dürüm",550,50,"150 g pişmiş tavuk, 2 lavaş, yoğurt, marul","Tavuğu yoğurtla lavaşa sar."],
+["Yumurtalı kaşarlı tost + süt",575,36,"2 yumurta, 40 g kaşar, 2 dilim ekmek, 250 ml süt","Yumurta ve kaşarı ekmeğin arasında tost yap."],
+["Mercimek çorbası + ekmek + yoğurt",460,23,"1 kase mercimek çorbası, 2 dilim ekmek, 150 g yoğurt","Çorbayı ısıt, ekmek ve yoğurtla ye."],
+["Tavuk sote + bulgur pilavı",680,58,"150 g tavuk, sebze, 100 g bulgur (çiğ), 1 yk yağ","Tavuğu sebzeyle sotele, bulgurla servis et."],
+["Kıymalı makarna",640,30,"100 g makarna (çiğ), 100 g kıyma, salça, 1 yk yağ","Kıymayı salçayla kavur, haşlanmış makarnaya karıştır."],
+["Yulaf pankek",545,22,"60 g yulaf, 2 yumurta, 1 muz, 1 yk bal","Yulaf, yumurta ve muzu ez, tavada iki yüzünü pişir, bal gez."],
+["Nohutlu pilav + yoğurt",570,23,"1 kase nohut, 150 g pilav, 150 g yoğurt","Pilavı nohutla karıştır, yoğurtla ye."],
+["Fırında balık + patates",590,35,"150 g somon, 250 g patates, 1 yk yağ","Balık ve patatesi 200°C'de 25 dk pişir."],
+["Fıstık ezmeli muzlu tost",455,15,"2 dilim ekmek, 2 yk fıstık ezmesi, 1 muz","Ezmeyi sür, muzu dilimle, tostla."],
+["Kuruyemiş + kuru meyve",350,7,"40 g fındık-ceviz, 30 g kuru üzüm","Atıştırmalık olarak ye."],
+["Simit + peynir + ayran",540,28,"1 simit, 50 g peynir, 300 ml ayran","Hazır, hızlı bir öğün."]];
+const hesap=(b,k,y,a,h)=>{const bmr=10*k+6.25*b-5*y+5,kcal=Math.round(bmr*a+h),pro=Math.round(k*2),fat=Math.round(kcal*.25/9),carb=Math.round((kcal-pro*4-fat*9)/4);return{bmr:Math.round(bmr),kcal,pro,fat,carb}};
+const bugun=()=>new Date().toLocaleDateString('sv');
+const hedef=()=>L.get('hedef',hesap(176,52,21,1.55,400));
+const kg=()=>(L.get('kilo',[]).slice(-1)[0]||{v:52}).v;
+function su(d){const k='s'+bugun();L.set(k,Math.max(0,L.get(k,0)+d));bugunV()}
+function yur(){L.set('y'+bugun(),+$('#yd').value||0);bugunV()}
+let tab=0;
+const TABS=["Bugün","Program","Tarifler","Kilo","Hesap"];
+function nav(){$('#nav').innerHTML=TABS.map((t,i)=>`<button class="${i==tab?'on':''}" onclick="tab=${i};render()">${t}</button>`).join('')}
+function ex(d){return P[d]?P[d][1].map(e=>`<div class="r"><div class="n"><div>${e[0]}</div><div class="s">${e[1]}</div></div><b>${e[2]}</b></div>`).join(''):'<div class="r"><span class="s">Dinlenme günü</span></div>'}
+function render(){nav();[bugunV,progV,tarifV,kiloV,hesapV][tab]();scrollTo(0,0)}
+function bugunV(){
+const d=new Date().getDay(),tk='w'+bugun(),done=L.get(tk,[]),meals=L.get('m'+bugun(),[]),h=hedef();
+const kal=meals.reduce((t,m)=>t+m.k,0),pro=meals.reduce((t,m)=>t+m.p,0);
+const sv=L.get('s'+bugun(),0),yr=L.get('y'+bugun(),0),yk=Math.round(3.5*kg()*yr/60),hk=h.kcal+yk;
+const w=P[d]?P[d][1].map((e,i)=>`<div class="r ${done.includes(i)?'done':''}"><input type="checkbox" style="width:24px;height:24px" ${done.includes(i)?'checked':''} onchange="tg(${i})"><div class="n"><div>${e[0]}</div><div class="s">${e[1]}</div></div><b>${e[2]}</b></div><div class="s" style="padding:0 0 8px">${oneri(e)}</div><div class="f" style="padding:0 0 12px;grid-template-columns:1fr 1fr auto"><input id="lk${i}" type="number" step="0.5" placeholder="kg"><input id="lr${i}" type="number" placeholder="tekrar"><button class="g" onclick="kl(${i})">Kaydet</button></div>`).join(''):'<div class="r"><span class="s">Bugün dinlenme. Yemeğini ye, erken yat.</span></div>';
+$('#v').innerHTML=`<h2>${GUN[d]}</h2>${onc()}${sr()}<div class="card"><div class="h"><b>${P[d]?P[d][0]:'Dinlenme'}</b><span>${done.length}/${P[d]?P[d][1].length:0}</span></div>${w}</div>
+${odak()}<div class="card"><div class="h"><b>Sabah yürüyüşü</b><span>${yr?yr+' dk · ~'+yk+' kcal':'Hedef 30-40 dk'}</span></div><div class="f"><input id="yd" type="number" placeholder="Dakika" value="${yr||''}"><button onclick="yur()">Kaydet</button></div></div>
+<div class="card"><div class="h"><b>Su</b><span>${sv} / 3000 ml</span></div><div class="bar"><i style="width:${Math.min(100,sv/30)}%"></i></div><div class="f"><button class="g" style="width:100%" onclick="su(-250)">−250 ml</button><button onclick="su(250)">+250 ml</button></div></div>
+<div class="card"><div class="h"><b>Beslenme</b><span>${kal} / ${hk} kcal</span></div>
+<div class="bar"><i style="width:${Math.min(100,kal/hk*100)}%"></i></div><div class="s">Protein ${pro} / ${h.pro} g · Kalan ${Math.max(0,hk-kal)} kcal</div>
+${meals.map((m,i)=>`<div class="r"><div class="n">${esc(m.a)}<div class="s">${m.k} kcal, ${m.p} g protein</div></div><button class="x" onclick="del(${i})">Sil</button></div>`).join('')}
+<div class="f"><input id="ya" class="w" placeholder="Yemek adı"><input id="yk" type="number" placeholder="kcal"><input id="yp" type="number" placeholder="Protein (g)"><button class="w" onclick="ekle()">Yemeği ekle</button></div></div>`}
+function tg(i){const k='w'+bugun(),a=L.get(k,[]),j=a.indexOf(i);j>-1?a.splice(j,1):a.push(i);L.set(k,a);bugunV()}
+function ekle(){const a=$('#ya').value.trim(),k=+$('#yk').value,p=+$('#yp').value||0;if(!a||!k)return;const key='m'+bugun(),m=L.get(key,[]);m.push({a,k,p});L.set(key,m);bugunV()}
+function del(i){const key='m'+bugun(),m=L.get(key,[]);m.splice(i,1);L.set(key,m);bugunV()}
+function progV(){const t=new Date().getDay();$('#v').innerHTML='<h2>Program</h2><div class="card"><div class="h"><b>Her sabah</b><span>Yürüyüş 30-40 dk</span></div><div class="r"><span class="s">Tempolu yürü. Yaktığın kalori Bugün sekmesinde günlük hedefe eklenir.</span></div></div>'+SIRA.map(d=>`<div class="card ${d==t?'today':''}"><div class="h"><b>${GUN[d]}</b><span>${P[d]?P[d][0]:'Dinlenme'}</span></div>${ex(d)}</div>`).join('')}
+function tarifV(){$('#v').innerHTML='<h2>Tarifler</h2><div class="card">'+T.map((r,i)=>`<details><summary>${r[0]} <span class="s">${r[1]} kcal · ${r[2]} g protein</span></summary><p><b>Malzeme:</b> ${r[3]}<br>${r[4]}</p><button class="g" onclick="tAdd(${i})">Bugüne ekle</button></details>`).join('')+'<p class="s">Değerler yaklaşık.</p></div>'}
+function tAdd(i){const key='m'+bugun(),m=L.get(key,[]);m.push({a:T[i][0],k:T[i][1],p:T[i][2]});L.set(key,m);tab=0;render()}
+function kiloV(){const k=L.get('kilo',[]),T=trend(),o=oner();$('#v').innerHTML=`<h2>Kilo</h2><div class="card"><div class="f"><input id="kg" type="number" step="0.1" placeholder="Bugünkü kilo (kg)"><button onclick="kAdd()">Kaydet</button></div>${cz()}</div><div class="card"><div class="h"><b>Haftalık ortalama</b><span>${T.a?T.a.toFixed(1)+' kg':'-'}${T.b?' (geçen hafta '+T.b.toFixed(1)+')':''}</span></div><div class="r"><span>${Array.isArray(o)?o[0]:o}</span>${Array.isArray(o)&&o[1]?`<button class="g" onclick="kay(${o[1]})">Uygula</button>`:''}</div></div><div class="card">${k.slice().reverse().slice(0,14).map(e=>`<div class="r"><span>${e.d}</span><b>${e.v} kg</b></div>`).join('')||'<p class="s">Haftada 1-2 kez aynı saatte tart.</p>'}</div>`}
+function kAdd(){const v=+$('#kg').value;if(!v)return;const k=L.get('kilo',[]);k.push({d:bugun(),v});L.set('kilo',k);kiloV()}
+function hesapV(){const h=hedef();$('#v').innerHTML=`<h2>Kalori hesabı</h2><div class="card"><div class="f"><div><label>Boy (cm)</label><input id="hb" type="number" value="176"></div><div><label>Kilo (kg)</label><input id="hk" type="number" value="${(L.get('kilo',[]).slice(-1)[0]||{v:52}).v}"></div><div><label>Yaş</label><input id="hy" type="number" value="21"></div><div><label>Aktivite</label><select id="ha"><option value="1.375">Hafif</option><option value="1.55" selected>Haftada 4 antrenman</option><option value="1.725">Yoğun</option></select></div><div class="w"><label>Hedef</label><select id="hh"><option value="300">Temiz kilo al (+300)</option><option value="400" selected>Kilo al (+400)</option><option value="500">Hızlı kilo al (+500)</option><option value="0">Koru</option></select></div><button class="w" onclick="hs()">Hesapla ve kaydet</button></div></div>
+<div class="card" id="so"><div class="h"><b>Günlük hedef</b></div><div class="r"><span>Kalori</span><b class="big">${h.kcal}</b></div><div class="r"><span>Protein</span><b>${h.pro} g</b></div><div class="r"><span>Yağ</span><b>${h.fat} g</b></div><div class="r"><span>Karbonhidrat</span><b>${h.carb} g</b></div></div>
+<p class="s" style="padding:0 6px">Mifflin-St Jeor formülü: bazal metabolizma × aktivite + hedef fazlası. Protein kilo başına 2 g. Kilon değişince yeniden hesapla.</p><div class="card" style="margin-top:14px"><div class="h"><b>Yedek</b><span>Verilerini koru</span></div><div class="f"><button class="g" style="width:100%" onclick="yed()">Yedeği indir</button><button class="g" style="width:100%" onclick="$('#yf').click()">Yedekten yükle</button><input id="yf" type="file" accept=".json" style="display:none" onchange="yuk(this.files[0])"></div></div>`}
+function hs(){const r=hesap(+$('#hb').value,+$('#hk').value,+$('#hy').value,+$('#ha').value,+$('#hh').value);L.set('hedef',r);hesapV()}
+function son(n){const a=L.get('lg:'+n,[]);return a[a.length-1]}
+function oneri(e){const s=son(e[0]);if(!s)return'İlk kez: hafif başla';const m=+((e[2].match(/-(\d+)/)||e[2].match(/x(\d+)/)||[0,0])[1]);return`Geçen: ${s.kg} kg × ${s.r}. `+(s.kg>0&&s.r>=m?'Bugün +2,5 kg dene':'Aynı kiloyla tekrar artır')}
+function kl(i){const e=P[new Date().getDay()][1][i],kg=+$('#lk'+i).value||0,r=+$('#lr'+i).value;if(!r)return;const a=L.get('lg:'+e[0],[]);a.push({d:bugun(),kg,r});L.set('lg:'+e[0],a.slice(-30));bugunV()}
+function ort(a){return a.length?a.reduce((t,e)=>t+e.v,0)/a.length:0}
+function trend(){const k=L.get('kilo',[]),t=Date.now(),g=e=>(t-new Date(e.d))/864e5,a=k.filter(e=>g(e)<7),b=k.filter(e=>g(e)>=7&&g(e)<14);return{a:ort(a),b:ort(b),n:a.length&&b.length}}
+function oner(){const T=trend();if(!T.n)return'Öneri için en az 2 haftalık tartı gerekir.';const f=T.a-T.b;if(f<0.1)return['Kilon artmıyor. Hedefe +200 kcal ekleyelim.',200];if(f>0.6)return['Çok hızlı artıyor. Hedefi 150 kcal düşürelim.',-150];return['Artış hızı iyi, hedefi koru.',0]}
+function kay(d){const h=hedef();h.kcal+=d;L.set('hedef',h);kiloV()}
+function cz(){const k=L.get('kilo',[]).slice(-14);if(k.length<2)return'';const v=k.map(e=>e.v),mn=Math.min(...v),r=(Math.max(...v)-mn)||1;return`<svg viewBox="0 0 280 70" style="width:100%"><polyline fill="none" stroke="#2347f5" stroke-width="3" points="${v.map((x,i)=>i*280/(v.length-1)+','+(65-(x-mn)/r*60)).join(' ')}"/></svg>`}
+function yed(){try{const o={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);o[k]=localStorage.getItem(k)}const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(o)],{type:'application/json'}));a.download='spor-yedek-'+bugun()+'.json';a.click()}catch(e){alert('Yedek alınamadı')}}
+function yuk(f){if(!f)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);Object.keys(o).forEach(k=>localStorage.setItem(k,o[k]));alert('Yedek yüklendi');render()}catch(e){alert('Dosya okunamadı')}};r.readAsText(f)}
+const O0=()=>[{t:'',d:0},{t:'',d:0},{t:'',d:0}];
+function onc(){const a=L.get('o'+bugun(),O0());return`<div class="card"><div class="h"><b>Günün 3 önceliği</b><span>${a.filter(x=>x.d).length}/3</span></div>${a.map((x,i)=>`<div class="r ${x.d?'done':''}"><input type="checkbox" style="width:24px;height:24px" ${x.d?'checked':''} onchange="oT(${i})"><input class="n" style="border:0;padding:6px" placeholder="Öncelik ${i+1}" value="${esc(x.t)}" onchange="oS(${i},this.value)"></div>`).join('')}</div>`}
+function oS(i,v){const k='o'+bugun(),a=L.get(k,O0());a[i].t=v;L.set(k,a)}
+function oT(i){const k='o'+bugun(),a=L.get(k,O0());a[i].d=a[i].d?0:1;L.set(k,a);bugunV()}
+function seri(f){let n=0,d=new Date();for(let i=0;i<400;i++){const r=f(d.toLocaleDateString('sv'),d.getDay());if(r==1)n++;else if(r==0&&i>0)break;d.setDate(d.getDate()-1)}return n}
+function sr(){const A=seri((k,g)=>P[g]?(L.get('w'+k,[]).length>=Math.ceil(P[g][1].length/2)?1:0):2),Y=seri(k=>L.get('y'+k,0)>=20?1:0),S=seri(k=>L.get('s'+k,0)>=3000?1:0),F=seri(k=>L.get('f'+k,0)>=100?1:0);return`<div class="card"><div class="h"><b>Seriler</b><span>üst üste gün</span></div><div class="f">${[['Antrenman',A],['Yürüyüş (20+ dk)',Y],['Su (3 L)',S],['Odak (100+ dk)',F]].map(x=>`<div><div class="big">${x[1]}</div><div class="s">${x[0]}</div></div>`).join('')}</div></div>`}
+let FT=null,FI=null;
+function fb(){if(FT){clearInterval(FI);FT=null;bugunV();return}FT={end:Date.now()+50*6e4,m:50};FI=setInterval(ft,1000);bugunV()}
+function ft(){if(!FT)return;const r=Math.round((FT.end-Date.now())/1000);if(r<=0){clearInterval(FI);const k='f'+bugun();L.set(k,L.get(k,0)+FT.m);FT=null;if(tab==0)bugunV();return}const el=$('#ft');if(el)el.textContent=Math.floor(r/60)+':'+String(r%60).padStart(2,'0')}
+function odak(){const bu=L.get('f'+bugun(),0);let h=0,d=new Date();for(let i=0;i<7;i++){h+=L.get('f'+d.toLocaleDateString('sv'),0);d.setDate(d.getDate()-1)}const r=FT?Math.max(0,Math.round((FT.end-Date.now())/1000)):0;return`<div class="card"><div class="h"><b>Odak (YKS)</b><span>Bugün ${bu} dk · hafta ${(h/60).toFixed(1)} sa</span></div><div class="f"><div class="big" id="ft">${FT?Math.floor(r/60)+':'+String(r%60).padStart(2,'0'):'50:00'}</div><button onclick="fb()">${FT?'Bırak':'Başlat'}</button></div><div class="s" style="padding-bottom:10px">50 dk çalış, sonra 10 dk mola. Telefon başka odada olsun.</div></div>`}
+render();
+</script></body></html>
